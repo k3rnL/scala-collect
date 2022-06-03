@@ -2,7 +2,6 @@ import sbtcrossproject.CrossPlugin.autoImport._
 
 import scala.scalanative.build.{GC, LTO, Mode}
 
-
 lazy val collect = crossProject(NativePlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .jvmSettings(
@@ -17,10 +16,13 @@ lazy val collect = crossProject(NativePlatform, JVMPlatform)
     )
   )
   .nativeSettings(
+    libraryDependencies ++= Seq(
+      "com.softwaremill.sttp.client3" %%% "core" % "3.6.1"
+    ),
     nativeConfig ~= {
-      _.withMode(Mode.releaseFull)
-        .withLTO(LTO.full)
-        .withOptimize(true)
+      _.withMode(Mode.debug)
+        .withLTO(LTO.none)
+        .withOptimize(false)
         .withGC(GC.commix)
         .withCompileOptions(Seq(
           //        "-v",
@@ -36,6 +38,7 @@ lazy val collect = crossProject(NativePlatform, JVMPlatform)
           "--target=arm64-apple-darwin21.4.0",
           "-Wno-unused-command-line-argument",
           "-L/Users/edaniel/CLionProjects/clickhouse-cpp-11/cmake-build-release/clickhouse",
+          "-L/opt/homebrew/lib/",
           "-lclickhouse-cpp-lib",
         ))
     }

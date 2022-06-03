@@ -3,9 +3,11 @@ package com.k3rnl.collect
 import com.k3rnl.collect.ClickhouseDriver.Type.Type
 import com.k3rnl.collect.Database.Row
 
+import java.net.{HttpURLConnection, URL}
 import scala.scalanative.runtime.{Intrinsics, fromRawPtr, toRawPtr}
 import scala.scalanative.unsafe._
 import scala.scalanative.unsigned.UnsignedRichLong
+
 
 @link("clickhouse-cpp-lib")
 @extern
@@ -92,8 +94,14 @@ object ClickhouseDriver {
 class ClickhouseDriver extends Database {
 
   val client: Ptr[Byte] = clickhouse_driver.getClient
+//  val backend: SttpBackend[Identity, Any] = HttpURLConnectionBackend()
 
-  def test(): Unit = println(clickhouse_driver.getClient)
+  def test(): Unit = {
+    val url = new URL("http://localhost:8123/?query=SELECT+1")
+    val con = url.openConnection.asInstanceOf[HttpURLConnection]
+    con.setRequestMethod("GET")
+    println(con.getResponseCode)
+  }
 
   def execute(query: String): Unit = {
     Zone { implicit z =>
@@ -120,3 +128,7 @@ class ClickhouseDriver extends Database {
   }
 }
 
+object Test extends App {
+  val driver = new ClickhouseDriver()
+  driver.test()
+}
