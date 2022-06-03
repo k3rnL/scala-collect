@@ -4,7 +4,7 @@ import scala.scalanative.build.{GC, LTO, Mode}
 
 
 lazy val collect = crossProject(NativePlatform, JVMPlatform)
-  .crossType(CrossType.Pure)
+  .crossType(CrossType.Full)
   .jvmSettings(
     libraryDependencies ++= Seq(
       "com.clickhouse" % "clickhouse-http-client" % "0.3.2-patch9",
@@ -41,5 +41,5 @@ lazy val collect = crossProject(NativePlatform, JVMPlatform)
     }
   )
 
-lazy val sharedJVM = collect.jvm
-lazy val sharedJS = collect.native
+//lazy val sharedJVM = collect.jvm
+//lazy val sharedJS = collect.native
