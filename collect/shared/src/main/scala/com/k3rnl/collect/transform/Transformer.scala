@@ -1,9 +1,11 @@
 package com.k3rnl.collect.transform
 
 import com.k3rnl.collect.Evaluator
+import com.k3rnl.collect.Evaluator.FunctionNative
 import com.k3rnl.collect.extract.Extractor
 import com.k3rnl.collect.language.AST
 
+import scala.collection.immutable
 import scala.util.matching.Regex
 
 class TransformerIdentity extends Transformer {
@@ -20,10 +22,14 @@ class TransformerNewKey(regexp: Regex, key: String, to: String) extends Transfor
 }
 
 class TransformerEvaluator(evaluator: Evaluator, ast: AST) extends Transformer {
+  val args: Seq[String] = List("id", "datetime", "value")
   override def transform(record: Extractor.Record, callback: Transformer.Result => Unit): Unit = {
+    evaluator.declaredFunctions += ("output" -> new FunctionNative("output", List("id", "datetime", "value"), context => {
+      callback(Transformer.Result(args.map(name => name -> context.env(name).toString).toMap))
+    }))
     val result = evaluator.interpret(List(ast), new Evaluator.Context(evaluator, record.mapping))
-    val mapping = result.env.map(x => (x._1, x._2.toString))
-    callback(Transformer.Result(mapping))
+//    val mapping = result.env.map(x => (x._1, x._2.toString))
+//    callback(Transformer.Result(mapping))
   }
 }
 

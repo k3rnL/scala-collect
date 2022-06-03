@@ -3,7 +3,7 @@ package com.k3rnl.collect
 import com.clickhouse.client.stream.{CapacityPolicy, NonBlockingPipedOutputStream}
 import com.clickhouse.client._
 import com.k3rnl.collect.database.Database
-import com.k3rnl.collect.database.Database.{AnyRow, Row}
+import com.k3rnl.collect.database.Database.{AnyRow, Row, Writer}
 
 import scala.collection.JavaConverters._
 
@@ -78,5 +78,26 @@ class ClickhouseDriver extends Database {
     outputStream.close()
 
     response.executeAndWait()
+  }
+
+  override def insert(query: String): Writer = {
+    val outputStream = new NonBlockingPipedOutputStream(8096, 8096, 30000,
+      CapacityPolicy.fixedCapacity(16), () => {})
+
+    val task = client.connect(server).write().query(query).format(ClickHouseFormat.TSV)
+      .data(outputStream.getInputStream()).execute()
+
+    new Writer {
+      override def write(data: AnyRow): Unit = {
+        val str = data.map(v => v.toString).mkString("\t")
+        outputStream.write(str.getBytes)
+        outputStream.write('\n')
+      }
+
+      override def close(): Unit = {
+        outputStream.close()
+        task.get().close()
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
 package com.k3rnl.collect.database
 
-import com.k3rnl.collect.database.Database.{AnyRow, Row}
+import com.k3rnl.collect.database.Database.{AnyRow, Row, Writer}
 
 object Database {
   trait Row extends Traversable[Any] {
@@ -10,6 +10,10 @@ object Database {
 
   type AnyRow = Traversable[Any]
 
+  trait Writer extends AutoCloseable{
+    def write(data: AnyRow): Unit
+    def close(): Unit
+  }
 }
 
 trait Database {
@@ -23,5 +27,5 @@ trait Database {
     }
   }
   def insert(query: String, data: Traversable[AnyRow]): Unit
-//  def query(query: String)(callback: Row => Unit): Unit = ???
+  def insert(query: String): Writer
 }

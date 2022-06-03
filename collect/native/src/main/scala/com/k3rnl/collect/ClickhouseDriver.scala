@@ -2,6 +2,7 @@ package com.k3rnl.collect
 
 import com.k3rnl.collect.ClickhouseDriver.Type.Type
 import com.k3rnl.collect.database.Database
+import com.k3rnl.collect.database.Database.{AnyRow, Row}
 
 import scala.scalanative.runtime.{Intrinsics, fromRawPtr, toRawPtr}
 import scala.scalanative.unsafe._
@@ -118,5 +119,9 @@ class ClickhouseDriver extends Database {
       true
     })
   }
+
+  override def insert(query: String, data: Traversable[AnyRow]): Unit = ???
+
+  override def insert(query: String): Writer = ???
 }
 
