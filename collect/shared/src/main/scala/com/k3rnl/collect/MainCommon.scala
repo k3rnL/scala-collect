@@ -1,6 +1,6 @@
 package com.k3rnl.collect
 
-import com.k3rnl.collect.Database.Row
+import com.k3rnl.collect.database.Database
 import com.k3rnl.collect.extract.CSVExtractor
 import com.k3rnl.collect.language.{AST, BuiltInFunctions}
 import com.k3rnl.collect.load.FileLoader
@@ -34,7 +34,7 @@ object MainCommon {
 
     //  var result = mutable.ListBuffer[Int]()
 
-//    val db: Database = new ClickhouseDriver()
+    val db: Database = new ClickhouseDriver()
 //    val result = db.query("SELECT * from system.numbers limit 10000000")
 //      .toList
 

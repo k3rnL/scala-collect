@@ -1,16 +1,18 @@
-package com.k3rnl.collect
+package com.k3rnl.collect.database
 
-import com.k3rnl.collect.Database.Row
+import com.k3rnl.collect.database.Database.{AnyRow, Row}
 
 object Database {
-  trait Row {
+  trait Row extends Traversable[Any] {
     def get[R](column: Int): R
     def `()`[R](column: Int): R = get[R](column)
   }
+
+  type AnyRow = Traversable[Any]
+
 }
 
 trait Database {
-  def test(): Unit
   def execute(query: String): Unit
   def query(query: String, callback: Row => Boolean): Unit
   def query(query: String): Traversable[Row] = new Traversable[Row] {
@@ -20,5 +22,6 @@ trait Database {
       })
     }
   }
+  def insert(query: String, data: Traversable[AnyRow]): Unit
 //  def query(query: String)(callback: Row => Unit): Unit = ???
 }

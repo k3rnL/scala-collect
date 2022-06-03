@@ -1,11 +1,12 @@
 package com.k3rnl.collect
 
-//import com.crobox.clickhouse.ClickhouseClient
-//import com.typesafe.config.{Config, ConfigFactory}
+import com.k3rnl.collect.database.Database
+import com.k3rnl.collect.database.Database.AnyRow
 
-
-//class ClickhouseDriver {
-//  def test(): Unit = {
-//    throw new Exception("Not in Native neither in JVM")
-//  }
+//class ClickhouseDriver extends Database {
+//  override def execute(query: String): Unit = ???
+//
+//  override def query(query: String, callback: Database.Row => Boolean): Unit = ???
+//
+//  override def insert(query: String, data: Traversable[AnyRow]): Unit = ???
 //}

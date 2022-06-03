@@ -16,13 +16,4 @@ class FileLoader(file: String) extends Loader {
   }
 }
 
-class PrintLoader extends Loader {
-  def load(result: Transformer.Result): Unit = {
-    result.mapping.foreach(e => println(s"${e._1}=${e._2}"))
-    println("-------------------------------")
-  }
-}
 
-trait Loader {
-  def load(result: Transformer.Result): Unit
-}

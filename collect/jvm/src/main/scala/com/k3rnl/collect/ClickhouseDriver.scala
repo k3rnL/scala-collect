@@ -1,7 +1,9 @@
 package com.k3rnl.collect
 
-import com.clickhouse.client.{ClickHouseClient, ClickHouseFormat, ClickHouseNode, ClickHouseProtocol, ClickHouseRequest, ClickHouseResponse}
-import com.k3rnl.collect.Database.Row
+import com.clickhouse.client.stream.{CapacityPolicy, NonBlockingPipedOutputStream}
+import com.clickhouse.client._
+import com.k3rnl.collect.database.Database
+import com.k3rnl.collect.database.Database.{AnyRow, Row}
 
 import scala.collection.JavaConverters._
 
@@ -9,8 +11,6 @@ class ClickhouseDriver extends Database {
   val preferredProtocol = ClickHouseProtocol.HTTP
   val client = ClickHouseClient.newInstance(preferredProtocol)
   val server = ClickHouseNode.builder.port(preferredProtocol).build
-
-
 
   def test(): Unit = {
     // only HTTP and gRPC are supported at this point// only HTTP and gRPC are supported at this point
@@ -50,23 +50,33 @@ class ClickhouseDriver extends Database {
     try {
       response.records().asScala.foreach(row => callback(new Row {
         override def get[R](column: Int): R = row.getValue(column).asObject().asInstanceOf[R]
+
+        override def foreach[U](f: Any => U): Unit = {
+          row.iterator().forEachRemaining(v => f(v.asObject()))
+        }
+
+        override def size: Int = row.size()
       }))
     } finally {
       if (response != null) response.close()
     }
   }
-}
 
-object Test extends App {
-  // measure time
-  val start = System.currentTimeMillis()
-  val client = new ClickhouseDriver()
+  override def insert(query: String, data: Traversable[AnyRow]): Unit = {
+    val outputStream = new NonBlockingPipedOutputStream(8096, 8096, 30000,
+      CapacityPolicy.fixedCapacity(16), () => {})
 
-  val r = client.query("select * from system.numbers limit 10000000")
-    .toList
+    val response = client.connect(server).write().query(query).format(ClickHouseFormat.TSV)
+      .data(outputStream.getInputStream())
 
-  println(r.size)
+    data.foreach(row => {
+      val str = row.map(v => v.toString).mkString("\t")
+      outputStream.write(str.getBytes)
+      outputStream.write('\n')
+    })
 
-  val end = System.currentTimeMillis()
-  println(s"Time: ${end - start}")
+    outputStream.close()
+
+    response.executeAndWait()
+  }
 }
