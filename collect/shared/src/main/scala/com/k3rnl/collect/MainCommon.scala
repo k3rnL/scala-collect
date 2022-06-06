@@ -2,6 +2,7 @@ package com.k3rnl.collect
 
 import com.k3rnl.collect.database.Database
 import com.k3rnl.collect.extract.CSVExtractor
+import com.k3rnl.collect.language.AST.{IntType, MapType, RuntimeValue, StringType}
 import com.k3rnl.collect.language.{AST, BuiltInFunctions}
 import com.k3rnl.collect.load.{DatabaseLoader, FileLoader}
 import com.k3rnl.collect.transform.TransformerEvaluator
@@ -16,10 +17,13 @@ object MainCommon {
     val startTime = System.currentTimeMillis()
 
     val ast = AST.Program(List(
-      AST.Assignment("a", AST.Constant("abc123abc")),
+      AST.Assignment("a", AST.Constant(new RuntimeValue(Map("a" -> AST.Constant(new RuntimeValue(1, IntType)), "b" -> AST.Constant(new RuntimeValue(2, IntType))), MapType(StringType, IntType)))),
+      AST.Call("typeof", List(AST.Variable("a", MapType(StringType, IntType)))),
+      AST.Call("print", List(AST.Variable("a", MapType(StringType, IntType)))),
+//      AST.Assignment("a", AST.StringLiteral("abc123abc")),
       //    AST.Call("print", List(AST.Variable("a"))),
-      AST.Assignment("b", AST.Call("firstMatchingValue", List(AST.Variable("a"), AST.Constant("abc(\\d+)abc")))),
-      AST.Call("output", List(AST.Variable("Order ID"), AST.Constant("2022-02-02 00:00:00"), AST.Variable("Total Cost"))),
+      AST.Assignment("b", AST.Call("firstMatchingValue", List(AST.Variable("a", StringType), AST.StringLiteral("abc(\\d+)abc")))),
+      AST.Call("output", List(AST.Variable("Order ID", StringType), AST.StringLiteral("2022-02-02 00:00:00"), AST.Variable("Total Cost", StringType))),
       //    AST.Call("print", List(AST.Variable("b"))),
     ))
 

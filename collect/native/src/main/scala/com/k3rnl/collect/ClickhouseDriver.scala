@@ -2,7 +2,7 @@ package com.k3rnl.collect
 
 import com.k3rnl.collect.ClickhouseDriver.Type.Type
 import com.k3rnl.collect.database.Database
-import com.k3rnl.collect.database.Database.{AnyRow, Row}
+import com.k3rnl.collect.database.Database.{AnyRow, Row, Writer}
 
 import scala.scalanative.runtime.{Intrinsics, fromRawPtr, toRawPtr}
 import scala.scalanative.unsafe._
