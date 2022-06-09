@@ -1,8 +1,9 @@
 package com.k3rnl.collect.language
 
-import com.k3rnl.collect.Evaluator
-import com.k3rnl.collect.Evaluator.FunctionNative
-import com.k3rnl.collect.language.AST.{RuntimeValue, StringType}
+import com.k3rnl.collect.evaluator.Evaluator
+import com.k3rnl.collect.evaluator.Evaluator.FunctionNative
+import com.k3rnl.collect.language.AST.{MapType, RuntimeValue, StringType}
+import com.k3rnl.collect.evaluator.MapEngine._
 
 object BuiltInFunctions {
   val functions: Map[String, Evaluator.FunctionDeclaration] = Map(
@@ -20,6 +21,10 @@ object BuiltInFunctions {
         case Some(m) => new RuntimeValue(m.group(1), StringType)
         case None => null
       }
+    }),
+    "find" -> new FunctionNative("find", List("regexp"), context => {
+      val regex = ("^" + context.env("regexp").value.toString).r
+      new RuntimeValue(context.env.find("", regex), MapType(StringType, StringType))
     })
   )
 }

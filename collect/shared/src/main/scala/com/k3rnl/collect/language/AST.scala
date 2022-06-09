@@ -1,6 +1,6 @@
 package com.k3rnl.collect.language
 
-import com.k3rnl.collect.Evaluator
+import com.k3rnl.collect.evaluator.Evaluator
 
 trait AST
 
@@ -12,6 +12,7 @@ object AST {
     override def toString: String = getClass.getSimpleName
   }
 
+  object AnyType extends Type
   object IntType extends Type
   object StringType extends Type
   object UnitType extends Type
@@ -24,7 +25,9 @@ object AST {
 
   case class Assignment(name: String, value: Expression) extends Statement
 
-  class RuntimeValue(val value: Any, val typeOf: Type)
+  class RuntimeValue(val value: Any, val typeOf: Type) {
+    override def toString: String = value.toString
+  }
   trait Expression extends AST {
     val typeOf: Type
     def run(context: Evaluator.Context): RuntimeValue

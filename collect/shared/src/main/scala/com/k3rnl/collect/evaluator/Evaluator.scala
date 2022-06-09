@@ -1,6 +1,6 @@
-package com.k3rnl.collect
+package com.k3rnl.collect.evaluator
 
-import com.k3rnl.collect.Evaluator.Context
+import com.k3rnl.collect.evaluator.Evaluator.Context
 import com.k3rnl.collect.language.AST
 import com.k3rnl.collect.language.AST.{Expression, RuntimeValue, Statement}
 

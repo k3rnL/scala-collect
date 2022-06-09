@@ -1,7 +1,7 @@
 package com.k3rnl.collect.transform
 
-import com.k3rnl.collect.Evaluator
-import com.k3rnl.collect.Evaluator.FunctionNative
+import com.k3rnl.collect.evaluator.Evaluator
+import com.k3rnl.collect.evaluator.Evaluator.FunctionNative
 import com.k3rnl.collect.extract.Extractor
 import com.k3rnl.collect.language.AST
 import com.k3rnl.collect.language.AST.{RuntimeValue, StringType}

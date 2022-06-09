@@ -1,6 +1,7 @@
 package com.k3rnl.collect
 
 import com.k3rnl.collect.database.Database
+import com.k3rnl.collect.evaluator.Evaluator
 import com.k3rnl.collect.extract.CSVExtractor
 import com.k3rnl.collect.language.AST.{IntType, MapType, RuntimeValue, StringType}
 import com.k3rnl.collect.language.{AST, BuiltInFunctions}
@@ -17,9 +18,10 @@ object MainCommon {
     val startTime = System.currentTimeMillis()
 
     val ast = AST.Program(List(
-      AST.Assignment("a", AST.Constant(new RuntimeValue(Map("a" -> AST.Constant(new RuntimeValue(1, IntType)), "b" -> AST.Constant(new RuntimeValue(2, IntType))), MapType(StringType, IntType)))),
-      AST.Call("typeof", List(AST.Variable("a", MapType(StringType, IntType)))),
-      AST.Call("print", List(AST.Variable("a", MapType(StringType, IntType)))),
+      AST.Assignment("a", AST.Constant(new RuntimeValue(Map("a" -> new RuntimeValue(1, IntType), "b" -> new RuntimeValue(2, IntType)), MapType(StringType, IntType)))),
+//      AST.Call("typeof", List(AST.Variable("a", MapType(StringType, IntType)))),
+//      AST.Call("print", List(AST.Call("find", List(AST.StringLiteral("(a.*=.*)"))))),
+//      AST.Call("find", List(AST.StringLiteral("(a.*=.*)"))),
 //      AST.Assignment("a", AST.StringLiteral("abc123abc")),
       //    AST.Call("print", List(AST.Variable("a"))),
       AST.Assignment("b", AST.Call("firstMatchingValue", List(AST.Variable("a", StringType), AST.StringLiteral("abc(\\d+)abc")))),
