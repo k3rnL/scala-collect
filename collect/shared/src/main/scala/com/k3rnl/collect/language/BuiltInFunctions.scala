@@ -18,13 +18,20 @@ object BuiltInFunctions {
     "firstMatchingValue" -> new FunctionNative("firstMatchingValue", List("from", "regexp"), context => {
       val regex = context.env("regexp").value.toString.r
       regex.findFirstMatchIn(context.env("from").value.toString) match {
-        case Some(m) => new RuntimeValue(m.group(1), StringType)
+        case Some(m) => RuntimeValue(m.group(1), StringType)
         case None => null
       }
     }),
     "find" -> new FunctionNative("find", List("regexp"), context => {
       val regex = ("^" + context.env("regexp").value.toString).r
-      new RuntimeValue(context.env.find("", regex), MapType(StringType, StringType))
+      RuntimeValue(context.env.find("", regex), MapType)
+    }),
+    "match" -> new FunctionNative("match", List("regexp"), context => {
+      val regex = ("^" + context.env("regexp").value.toString).r
+      RuntimeValue(context.env.findFirst("", regex).get, MapType)
+    }),
+    "value" -> new FunctionNative("value", List("kv"), context => {
+      RuntimeValue(context.env("kv").value.asInstanceOf[(String, String)]._2, StringType)
     })
   )
 }

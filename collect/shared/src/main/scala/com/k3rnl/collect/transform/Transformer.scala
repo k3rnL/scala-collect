@@ -29,7 +29,7 @@ class TransformerEvaluator(evaluator: Evaluator, ast: AST) extends Transformer {
       callback(Transformer.Result(args.map(name => name -> context.env(name).value.toString).toMap))
       null
     }))
-    val result = evaluator.interpret(List(ast), new Evaluator.Context(evaluator, record.mapping.map(kv => kv._1 -> new RuntimeValue(kv._2, StringType))))
+    val result = evaluator.interpret(List(ast), Evaluator.Context(evaluator, record.mapping.map(kv => kv._1 -> RuntimeValue(kv._2, StringType))))
 //    val mapping = result.env.map(x => (x._1, x._2.toString))
 //    callback(Transformer.Result(mapping))
   }

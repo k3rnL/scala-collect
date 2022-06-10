@@ -14,6 +14,8 @@ lazy val collect = crossProject(NativePlatform, JVMPlatform)
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe.play" %% "play-json" % "2.9.2",
+      "org.scala-lang.modules" %% "scala-parser-combinators" % "2.1.1",
+      "org.scalatest" %% "scalatest" % "3.2.12" % "test"
     )
   )
   .nativeSettings(

@@ -1,6 +1,7 @@
 package com.k3rnl.collect.language
 
 import com.k3rnl.collect.evaluator.Evaluator
+import com.k3rnl.collect.evaluator.MapEngine._
 
 trait AST
 
@@ -17,18 +18,18 @@ object AST {
   object StringType extends Type
   object UnitType extends Type
 
-  case class MapType(keyType: Type, valueType: Type) extends Type {
-    override def toString: String = s"Map[${keyType.toString}, ${valueType.toString}]"
+  case object MapType extends Type {
+    override def toString: String = s"Map"
   }
 
   trait Statement extends AST
 
-  case class Assignment(name: String, value: Expression) extends Statement
+  case class Assignment(variable: Variable, value: Expression) extends Statement
 
-  class RuntimeValue(val value: Any, val typeOf: Type) {
+  case class RuntimeValue(val value: Any, val typeOf: Type) {
     override def toString: String = value.toString
   }
-  trait Expression extends AST {
+  trait Expression extends Statement {
     val typeOf: Type
     def run(context: Evaluator.Context): RuntimeValue
   }
@@ -41,20 +42,19 @@ object AST {
     override val typeOf: Type = UnitType
   }
 
-  case class Constant(value: RuntimeValue) extends Expression {
+  class Constant(value: RuntimeValue) extends Expression {
     override def run(context: Evaluator.Context): RuntimeValue = value
 
     override val typeOf: Type = value.typeOf
   }
 
-  case class StringLiteral(value: String) extends Expression {
-    override def run(context: Evaluator.Context): RuntimeValue = new RuntimeValue(value, typeOf)
+  case class StringLiteral(string: String) extends Constant(RuntimeValue(string, StringType))
 
-    override val typeOf: Type = StringType
-  }
-
-  case class Variable(name: String, override val typeOf: Type) extends Expression {
-    override def run(context: Evaluator.Context): RuntimeValue = context.env(name)
+  case class Variable(path: Seq[String] = Nil, name: String, override val typeOf: Type) extends Expression {
+    override def run(context: Evaluator.Context): RuntimeValue = context.env.get(path, name) match {
+      case Some(value) => value
+      case None => throw new Exception(s"Variable $name not found")
+    }
   }
 
 }

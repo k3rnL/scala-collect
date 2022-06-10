@@ -1,6 +1,7 @@
 package com.k3rnl.collect.evaluator
 
 import com.k3rnl.collect.evaluator.Evaluator.Context
+import com.k3rnl.collect.evaluator.MapEngine._
 import com.k3rnl.collect.language.AST
 import com.k3rnl.collect.language.AST.{Expression, RuntimeValue, Statement}
 
@@ -10,7 +11,7 @@ class Evaluator {
 
   def call(name: String, args: List[AST.Expression], context: Context): RuntimeValue = {
     val function = declaredFunctions(name)
-    val subScope: Context = function.args.zip(args.map(arg => arg.run(context))).foldLeft(context)((context, arg) => context + arg)
+    val subScope: Context = function.args.zip(args.map(arg => arg.run(context))).foldLeft(context)((context, arg) => context.copy(env = context.env + arg))
     stack = subScope +: stack
 
     val result = function.run(subScope)
@@ -24,17 +25,12 @@ class Evaluator {
     case ast +: tail => ast match {
       case AST.Program(statements) => interpret(statements, context)
       case statement: Statement => statement match {
-        case AST.Assignment(name, value) => {
+        case expression: Expression => expression.run(context) ; interpret(tail, context)
+        case AST.Assignment(variable, value) => {
           val result = value.run(context)
-          context.env.get(name) match {
-            case Some(variable) if variable.typeOf.isInstanceOf[result.typeOf.type] => context + (name -> result)
-            case Some(variable) =>
-              throw new Exception(s"Variable $name already defined, cannot assign value of type ${result.typeOf} to variable of type ${variable.typeOf}")
-            case None => interpret(tail, context + (name -> value.run(context)))
-          }
+          interpret(tail, context.copy(env = new MapEngine(context.env).assign(variable.path, variable.name, result)))
         }
       }
-      case expression: Expression => expression.run(context) ; interpret(tail, context)
     }
   }
 
@@ -43,15 +39,7 @@ class Evaluator {
 }
 
 object Evaluator {
-  class Context(val evaluator: Evaluator, var env: Map[String, RuntimeValue]) {
-    def apply(env: Map[String, RuntimeValue] = env): Context = new Context(evaluator, env)
-
-    def +(right: (String, RuntimeValue)): Context = new Context(evaluator, env + right)
-    def -(right: String): Context = new Context(evaluator, env - right)
-
-    def +=(right: (String, RuntimeValue)): Unit = env = env + right
-    def -=(right: String): Unit = env = env - right
-  }
+  case class Context(evaluator: Evaluator, env: Map[String, RuntimeValue])
 
   abstract class FunctionDeclaration(val name: String, val args: List[String]) {
     def run(context: Context): RuntimeValue
