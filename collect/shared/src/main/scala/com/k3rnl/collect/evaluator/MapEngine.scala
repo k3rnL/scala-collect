@@ -33,7 +33,7 @@ object MapEngine {
       case Nil => map.get(key)
       case head :: tail => map.get(head) match {
         case Some(RuntimeValue(value, MapType)) => get(tail, key, value.asInstanceOf[Map[String, RuntimeValue]])
-        case Some(_) => throw new Exception(s"$key is not a map")
+        case Some(_) => throw new Exception(s"$head is not a map")
         case None => None
       }
     }

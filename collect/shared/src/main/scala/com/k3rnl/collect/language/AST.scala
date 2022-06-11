@@ -13,14 +13,17 @@ object AST {
     override def toString: String = getClass.getSimpleName
   }
 
-  object AnyType extends Type
-  object IntType extends Type
-  object StringType extends Type
-  object UnitType extends Type
+  class AnyType extends Type
 
-  case object MapType extends Type {
-    override def toString: String = s"Map"
-  }
+  case object IntType extends AnyType
+
+  case object StringType extends AnyType
+
+  case object UnitType extends AnyType
+
+  case object MapType extends AnyType
+
+  case object ListType extends AnyType
 
   trait Statement extends AST
 
@@ -29,8 +32,10 @@ object AST {
   case class RuntimeValue(val value: Any, val typeOf: Type) {
     override def toString: String = value.toString
   }
+
   trait Expression extends Statement {
     val typeOf: Type
+
     def run(context: Evaluator.Context): RuntimeValue
   }
 
@@ -42,6 +47,19 @@ object AST {
     override val typeOf: Type = UnitType
   }
 
+  case class Dereference(value: Expression, index: Expression) extends Expression {
+    override val typeOf: Type = new AnyType
+
+    override def run(context: Evaluator.Context): RuntimeValue = {
+      val index = this.index.run(context)
+      value.run(context) match {
+        case RuntimeValue(value, MapType) => value.asInstanceOf[Map[String, RuntimeValue]].get(Seq(), index.value.toString).get
+        case RuntimeValue(value, ListType) => value.asInstanceOf[List[RuntimeValue]](index.value.toString.toInt)
+        case _ => throw new Exception("Cannot dereference non-map or non-list")
+      }
+    }
+  }
+
   class Constant(value: RuntimeValue) extends Expression {
     override def run(context: Evaluator.Context): RuntimeValue = value
 
@@ -50,10 +68,23 @@ object AST {
 
   case class StringLiteral(string: String) extends Constant(RuntimeValue(string, StringType))
 
+  case class ListLiteral(list: List[Expression]) extends Expression {
+    override def run(context: Evaluator.Context): RuntimeValue = {
+      RuntimeValue(list.map(_.run(context)), ListType)
+    }
+
+    override val typeOf: Type = ListType
+  }
+
   case class Variable(path: Seq[String] = Nil, name: String, override val typeOf: Type) extends Expression {
+    lazy val fullName: String = path match {
+      case Nil => name
+      case _ => path.mkString(".") + "." + name
+    }
+
     override def run(context: Evaluator.Context): RuntimeValue = context.env.get(path, name) match {
       case Some(value) => value
-      case None => throw new Exception(s"Variable $name not found")
+      case None => throw new Exception(s"Variable $fullName not found")
     }
   }
 

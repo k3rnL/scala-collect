@@ -35,9 +35,9 @@ object MainCommon {
         |#find("(a.*=.*)")
         |#Order ID = Total Cost
         |#Order ID = value(match("Order ID=(\d+).*"))
-        |test.toto = 1
-        |#print(test)
-        |print(test.toto)
+        |test = [[1],2,3]
+        |print(test[0][0])
+        |#print(test.toto)
         |#output(Order ID, "2022-02-02 00:00:00", Total Cost)
         |""".stripMargin) match {
       case Parser.Success(result, _) => result
