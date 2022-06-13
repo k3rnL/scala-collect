@@ -27,6 +27,8 @@ object clickhouse_driver {
 object ClickhouseDriver {
   class ClickhouseRow(block: Block, index: Long) extends Row {
     override def get[R](column: CInt): R = block.getColumn(column).at(index).asInstanceOf[R]
+
+    override def foreach[U](f: Any => U): Unit = ???
   }
 
   class Block(ptr: Ptr[Byte]) {

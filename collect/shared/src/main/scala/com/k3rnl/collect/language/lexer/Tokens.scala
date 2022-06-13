@@ -14,4 +14,5 @@ case object PAREN_CLOSE extends Token
 case object DOT extends Token
 case object COMMA extends Token
 case object EQUALS extends Token
+case object DOLLAR extends Token
 case object NEWLINE extends Token

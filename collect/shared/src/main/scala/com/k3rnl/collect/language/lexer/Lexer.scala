@@ -1,7 +1,8 @@
 package com.k3rnl.collect.language.lexer
 
-import com.k3rnl.collect.language.AST
+import com.k3rnl.collect.language.{AST, lexer}
 import com.k3rnl.collect.language.AST.StringType
+import com.k3rnl.collect.language.lexer.Parser.accept
 
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.{Parsers, RegexParsers}
@@ -10,7 +11,7 @@ import scala.util.parsing.input.{NoPosition, Position, Reader}
 object Lexer extends RegexParsers {
   override val whiteSpace: Regex = """[ \t]+""".r
 
-  def identifier: Parser[IDENTIFIER] = """[a-zA-Z]([a-zA-Z\d ]+[a-zA-Z])?""".r ^^ (string => IDENTIFIER(string))
+  def identifier: Parser[IDENTIFIER] = """[_a-zA-Z](?:([ .\w\d]*[\w\d])|[\w\d]*)?+""".r ^^ (string => IDENTIFIER(string))
   def number: Parser[NUMBER] = """-?\d+""".r ^^ (string => NUMBER(string.toInt))
   def string: Parser[STRING] = """"[^"]*"""".r ^^ (string => STRING(string.substring(1, string.length - 1)))
   def comment: Parser[COMMENT.type] = """#[^\n]*""".r ^^ (_ => COMMENT)
@@ -23,6 +24,7 @@ object Lexer extends RegexParsers {
   def comma: Parser[COMMA.type] = """,""".r ^^ (_ => COMMA)
   def dot: Parser[DOT.type] = """\.""".r ^^ (_ => DOT)
   def equals: Parser[EQUALS.type] = """=""".r ^^ (_ => EQUALS)
+  def dollar: Parser[DOLLAR.type] = """\$""".r ^^ (_ => DOLLAR)
   def eol: Parser[NEWLINE.type] = """[\r?\n]+""".r ^^ (_ => NEWLINE)
 
   def token: Parser[Token] = (
@@ -39,6 +41,7 @@ object Lexer extends RegexParsers {
       | comma
       | dot
       | equals
+      | dollar
       | eol
       | failure("Unexpected character")
     )
@@ -69,10 +72,13 @@ object Parser extends Parsers {
 
   def parse(input: String): ParseResult[AST.Program] = parse(Lexer(input))
 
-  def constant: Parser[AST.Constant] = accept("constant", {
-    case NUMBER(value) => AST.StringLiteral(value.toString)
+  def stringLiteral: Parser[AST.StringLiteral] = accept("string literal", {
     case STRING(value) => AST.StringLiteral(value)
   })
+  def numberLiteral: Parser[AST.Constant] = accept("number literal", {
+    case NUMBER(value) => AST.StringLiteral(value.toString)
+  })
+  def constant: Parser[AST.Constant] = stringLiteral | numberLiteral
 
   def elements: Parser[List[AST.Expression]] = expression ~ rep(COMMA ~> expression) ^^ {
     case head ~ tail => head :: tail
@@ -94,8 +100,16 @@ object Parser extends Parsers {
   }
   def identifier: Parser[AST.Variable] = qualifiedIdentifier | simpleIdentifier
 
+  def valueMatch: Parser[AST.Expression] = DOLLAR ~> stringLiteral ^^ {
+    string => AST.Call("value", List(AST.Call("match", List(AST.StringLiteral(string.string)))))
+  }
+  def mapMatch: Parser[AST.Expression] = DOLLAR ~> BRACE_OPEN ~> stringLiteral <~ BRACE_CLOSE ^^ {
+    string => AST.Call("find", List(AST.StringLiteral(string.string)))
+  }
+  def matching: Parser[AST.Expression] = mapMatch | valueMatch
+
   def expressionTail: Parser[AST.Expression] = BRACKET_OPEN ~> expression <~ BRACKET_CLOSE
-  def expression: Parser[AST.Expression] = (call | identifier | constant | listLiteral) ~ expressionTail.* ^^ {
+  def expression: Parser[AST.Expression] = (matching | call | identifier | constant | listLiteral) ~ expressionTail.* ^^ {
     case expression ~ Nil => expression
     case expression ~ tail => tail.foldLeft(expression)((expression, index) => AST.Dereference(expression, index))
   }
@@ -106,22 +120,22 @@ object Parser extends Parsers {
      case function ~ _ ~ arguments ~ _ => AST.Call(function.name, arguments)
   }
 
-  def program: Parser[AST.Program] = rep(statement) ^^ {AST.Program(_)} | failure("No statements found")
+  def program: Parser[AST.Program] = phrase(rep(statement)) ^^ {AST.Program(_)}
 
 }
 
 object Test extends App {
   val result = Parser.parse(
     """
-      |
-      |a = [[1]][0][0]
-      |output(Order Id, "2022-02-02 00:00:00", Total Cost)
+      |a = 123
+      |print(a)
+      |print($"(a=\d).*")
       |""".stripMargin)
 
   result match {
     case Parser.Success(program, _) =>
       println("Success")
       println(program)
-    case Parser.NoSuccess(error, _) => println(error)
+    case e: Parser.NoSuccess => println(e)
   }
 }
