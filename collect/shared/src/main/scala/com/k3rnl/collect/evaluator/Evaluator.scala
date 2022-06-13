@@ -2,7 +2,7 @@ package com.k3rnl.collect.evaluator
 
 import com.k3rnl.collect.evaluator.Evaluator.Context
 import com.k3rnl.collect.evaluator.MapEngine._
-import com.k3rnl.collect.language.AST
+import com.k3rnl.collect.language.{AST, BuiltInFunctions}
 import com.k3rnl.collect.language.AST.{Expression, RuntimeValue, Statement}
 
 import scala.annotation.tailrec
@@ -34,7 +34,7 @@ class Evaluator {
     }
   }
 
-  var declaredFunctions: Map[String, Evaluator.FunctionDeclaration] = Map()
+  var declaredFunctions: Map[String, Evaluator.FunctionDeclaration] = BuiltInFunctions.functions
   var stack: List[Context] = List()
 }
 
