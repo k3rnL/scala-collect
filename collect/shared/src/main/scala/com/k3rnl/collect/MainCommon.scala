@@ -4,7 +4,7 @@ import com.k3rnl.collect.database.Database
 import com.k3rnl.collect.evaluator.Evaluator
 import com.k3rnl.collect.extract.CSVExtractor
 import com.k3rnl.collect.language.AST.{IntType, MapType, RuntimeValue, StringType}
-import com.k3rnl.collect.language.lexer.Parser
+import com.k3rnl.collect.language.parser.Parser
 import com.k3rnl.collect.language.{AST, BuiltInFunctions}
 import com.k3rnl.collect.load.{DatabaseLoader, FileLoader}
 import com.k3rnl.collect.transform.TransformerEvaluator

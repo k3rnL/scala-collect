@@ -19,6 +19,8 @@ class Evaluator {
     result
   }
 
+  final def interpret(asts: List[AST]): Context = interpret(asts, Context(this, Map()))
+
   @tailrec
   final def interpret(asts: List[AST], context: Context): Evaluator.Context = asts match {
     case Nil => context

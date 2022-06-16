@@ -1,4 +1,4 @@
-package com.k3rnl.collect.language.lexer
+package com.k3rnl.collect.language.parser
 
 sealed trait Token
 case class IDENTIFIER(name: String) extends Token
@@ -16,3 +16,4 @@ case object COMMA extends Token
 case object EQUALS extends Token
 case object DOLLAR extends Token
 case object NEWLINE extends Token
+case object ARROW_RIGHT extends Token

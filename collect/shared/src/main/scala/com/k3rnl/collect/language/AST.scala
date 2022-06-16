@@ -25,11 +25,13 @@ object AST {
 
   case object ListType extends AnyType
 
+  case object TupleType extends AnyType
+
   trait Statement extends AST
 
   case class Assignment(variable: Variable, value: Expression) extends Statement
 
-  case class RuntimeValue(val value: Any, val typeOf: Type) {
+  case class RuntimeValue(value: Any, typeOf: Type) {
     override def toString: String = value.toString
   }
 
@@ -74,6 +76,29 @@ object AST {
     }
 
     override val typeOf: Type = ListType
+  }
+
+  case class TupleLiteral(name: Expression, value: Expression) extends Expression {
+    override def run(context: Evaluator.Context): RuntimeValue = {
+      val key = name.run(context)
+      if (key.typeOf != StringType) throw new Exception("Tuple key must be a string")
+      RuntimeValue((key.value.toString, value.run(context)), TupleType)
+    }
+
+    override val typeOf: Type = TupleType
+  }
+
+  case class MapLiteral(tuples: List[Expression]) extends Expression {
+    override def run(context: Evaluator.Context): RuntimeValue = {
+      val tuples = this.tuples.map(_.run(context))
+      if (tuples.exists(_.typeOf != TupleType)) {
+        throw new Exception("Map literal must be a list of tuples")
+      }
+      val map = tuples.map(_.value.asInstanceOf[(String, RuntimeValue)]).toMap
+      RuntimeValue(map, MapType)
+    }
+
+    override val typeOf: Type = MapType
   }
 
   case class Variable(path: Seq[String] = Nil, name: String, override val typeOf: Type) extends Expression {

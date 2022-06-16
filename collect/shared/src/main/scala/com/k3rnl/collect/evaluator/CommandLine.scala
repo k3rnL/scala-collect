@@ -1,6 +1,6 @@
 package com.k3rnl.collect.evaluator
 
-import com.k3rnl.collect.language.lexer.Parser
+import com.k3rnl.collect.language.parser.Parser
 
 class CommandLine {
   val evaluator = new Evaluator()
