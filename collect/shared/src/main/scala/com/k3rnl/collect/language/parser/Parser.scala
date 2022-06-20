@@ -52,7 +52,9 @@ object Parser extends Parsers {
   def simpleIdentifier: Parser[AST.Variable] = accept("identifier", { case IDENTIFIER(name) => AST.Variable(Nil, name, StringType) })
   def qualifiedIdentifier: Parser[AST.Variable] = simpleIdentifier ~ Dot ~ repsep(simpleIdentifier, Dot) ^^ {
     case first ~ _ ~ Nil => AST.Variable(Nil, first.name, StringType)
-    case first ~ _ ~ path => AST.Variable(first.name +: path.drop(1).map(_.name), path.last.name, StringType)
+    case first ~ _ ~ path =>
+      print(path)
+      AST.Variable((first +: path).dropRight(1).map(_.name), path.last.name, StringType)
   }
   def identifier: Parser[AST.Variable] = qualifiedIdentifier | simpleIdentifier
 
