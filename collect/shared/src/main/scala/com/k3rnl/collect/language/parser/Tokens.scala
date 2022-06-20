@@ -1,19 +1,39 @@
 package com.k3rnl.collect.language.parser
 
-sealed trait Token
-case class IDENTIFIER(name: String) extends Token
-case class NUMBER(number: Int) extends Token
-case class STRING(content: String) extends Token
-case object COMMENT extends Token
-case object BRACE_OPEN extends Token
-case object BRACE_CLOSE extends Token
-case object BRACKET_OPEN extends Token
-case object BRACKET_CLOSE extends Token
-case object PAREN_OPEN extends Token
-case object PAREN_CLOSE extends Token
-case object DOT extends Token
-case object COMMA extends Token
-case object EQUALS extends Token
-case object DOLLAR extends Token
-case object NEWLINE extends Token
-case object ARROW_RIGHT extends Token
+import scala.util.parsing.input.Positional
+
+
+object Tokens {
+  def Comment: COMMENT = COMMENT()
+  def BraceOpen: BRACE_OPEN = BRACE_OPEN()
+  def BraceClose: BRACE_CLOSE = BRACE_CLOSE()
+  def BracketOpen: BRACKET_OPEN = BRACKET_OPEN()
+  def BracketClose: BRACKET_CLOSE = BRACKET_CLOSE()
+  def ParenOpen: PAREN_OPEN = PAREN_OPEN()
+  def ParenClose: PAREN_CLOSE = PAREN_CLOSE()
+  def Dot: DOT = DOT()
+  def Comma: COMMA = COMMA()
+  def Equals: EQUALS = EQUALS()
+  def Dollar: DOLLAR = DOLLAR()
+  def Newline: NEWLINE = NEWLINE()
+  def ArrowRight: ARROW_RIGHT = ARROW_RIGHT()
+}
+
+sealed trait Tokens extends Positional
+
+case class IDENTIFIER(name: String) extends Tokens
+case class NUMBER(number: Int) extends Tokens
+case class STRING(content: String) extends Tokens
+case class COMMENT() extends Tokens
+case class BRACE_OPEN() extends Tokens
+case class BRACE_CLOSE() extends Tokens
+case class BRACKET_OPEN() extends Tokens
+case class BRACKET_CLOSE() extends Tokens
+case class PAREN_OPEN() extends Tokens
+case class PAREN_CLOSE() extends Tokens
+case class DOT() extends Tokens
+case class COMMA() extends Tokens
+case class EQUALS() extends Tokens
+case class DOLLAR() extends Tokens
+case class NEWLINE() extends Tokens
+case class ARROW_RIGHT() extends Tokens
