@@ -42,7 +42,7 @@ object Parser extends Parsers {
     case None => AST.MapLiteral(List())
   }
 
-  def literals: Parser[AST.Expression] = constant | listLiteral | mapLiteral
+  def literals: Parser[AST.Expression] = constant | listLiteral | mapLiteral | tupleLiteral
 
   def assignment: Parser[AST.Assignment] = (identifier ~ EQUALS ~ expression) ^^ {
     case variable ~ _ ~ expression => AST.Assignment(variable, expression)
