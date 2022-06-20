@@ -43,7 +43,7 @@ object Parser extends Parsers {
     case None => AST.MapLiteral(List())
   }
 
-  def literals: Parser[AST.Expression] = constant | listLiteral | mapLiteral | tupleLiteral
+  def literals: Parser[AST.Expression] = tupleLiteral | constant | listLiteral | mapLiteral
 
   def assignment: Parser[AST.Assignment] = (identifier ~ Equals ~ expression) ^^ {
     case variable ~ _ ~ expression => AST.Assignment(variable, expression)
@@ -65,7 +65,7 @@ object Parser extends Parsers {
   def matching: Parser[AST.Expression] = mapMatch | valueMatch
 
   def expressionTail: Parser[AST.Expression] = BracketOpen ~> expression <~ BracketClose
-  def expression: Parser[AST.Expression] = (matching | call | identifier | constant | literals) ~ expressionTail.* ^^ {
+  def expression: Parser[AST.Expression] = (literals | matching | call | identifier | constant) ~ expressionTail.* ^^ {
     case expression ~ Nil => expression
     case expression ~ tail => tail.foldLeft(expression)((expression, index) => AST.Dereference(expression, index))
   }
