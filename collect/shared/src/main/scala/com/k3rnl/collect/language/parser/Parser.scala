@@ -58,11 +58,11 @@ object Parser extends Parsers {
   }
   def identifier: Parser[AST.Variable] = qualifiedIdentifier | simpleIdentifier
 
-  def valueMatch: Parser[AST.Expression] = Dollar ~> stringLiteral ^^ {
-    string => AST.Call("value", List(AST.Call("match", List(AST.StringLiteral(string.string)))))
+  def valueMatch: Parser[AST.Expression] = Dollar ~> expression ^^ {
+    expr => AST.Call("value", List(AST.Call("match", List(expr))))
   }
-  def mapMatch: Parser[AST.Expression] = Dollar ~> BraceOpen ~> stringLiteral <~ BraceClose ^^ {
-    string => AST.Call("find", List(AST.StringLiteral(string.string)))
+  def mapMatch: Parser[AST.Expression] = Dollar ~> BraceOpen ~> expression <~ BraceClose ^^ {
+    expr => AST.Call("find", List(expr))
   }
   def matching: Parser[AST.Expression] = mapMatch | valueMatch
 
