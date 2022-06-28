@@ -7,6 +7,7 @@ import com.k3rnl.collect.evaluator.MapEngine._
 
 object BuiltInFunctions {
   val functions: Map[String, Evaluator.FunctionDeclaration] = Map(
+    "exit" -> new FunctionNative("exit", List(), context => { System.exit(0) ; null }),
     "typeof" -> new FunctionNative("typeof", List("expression"), context => {
       println(context.env("expression").typeOf)
       null

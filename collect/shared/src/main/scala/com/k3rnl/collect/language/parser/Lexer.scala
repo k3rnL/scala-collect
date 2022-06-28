@@ -13,7 +13,7 @@ object Lexer extends RegexParsers {
   override val whiteSpace: Regex = """[ \t]+""".r
 
   def identifier: Parser[IDENTIFIER] = positioned {
-    """[_a-zA-Z](?:([ \w\d]*[\w\d])|[\w\d]*)?+""".r ^^ (string => IDENTIFIER(string))
+    """[_a-zA-Z](?:([ \w\d]*[\w\d])|[\w\d]*)+?""".r ^^ (string => IDENTIFIER(string))
   }
 
   def number: Parser[NUMBER] = positioned {
